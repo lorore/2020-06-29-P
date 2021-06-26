@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.PremierLeague.model.Adiacenza;
+import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -46,10 +47,10 @@ public class FXMLController {
     private ComboBox<Month> cmbMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM1"
-    private ComboBox<?> cmbM1; // Value injected by FXMLLoader
+    private ComboBox<Match> cmbM1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM2"
-    private ComboBox<?> cmbM2; // Value injected by FXMLLoader
+    private ComboBox<Match> cmbM2; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -92,13 +93,43 @@ public class FXMLController {
     	}
     String result=	this.model.creaGrafo(m, min);
     this.txtResult.appendText(result);
+    this.cmbM1.getItems().clear();
+    this.cmbM2.getItems().clear();
+    List<Match> matches=this.model.getVertici();
+    this.cmbM1.getItems().addAll(matches);
+    this.cmbM2.getItems().addAll(matches);
     this.btnCollegamento.setDisable(false);
     this.btnConnessioneMassima.setDisable(false);
     }
 
     @FXML
     void doCollegamento(ActionEvent event) {
-    	
+    	this.txtResult.clear();
+    	Match m1=this.cmbM1.getValue();
+    	if(m1==null) {
+    		this.txtResult.setText("Match m1 non inserito");
+    		return;
+    	}
+    	Match m2=this.cmbM2.getValue();
+    	if(m2==null) {
+    		this.txtResult.setText("Match m2 non inserito");
+    		return;
+    	}
+    	if(m1.equals(m2)) {
+    		this.txtResult.setText("Partenza e destinazione non possono coincidere!");
+    		return;
+    	}
+    	List<Match> soluzione=this.model.avviaRicorsione(m1, m2);
+    	if(soluzione==null) {
+    		this.txtResult.setText("Il percorso non esiste");
+    		return;
+    	}
+    	this.txtResult.setText("Percorso migliore ha peso: "+this.model.getMax()+"\n");
+    	for(Match m: soluzione) {
+    		this.txtResult.appendText(m.toString()+"\n");
+    		
+    	}
+    	return;
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
