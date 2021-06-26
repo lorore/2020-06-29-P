@@ -5,9 +5,13 @@
 package it.polito.tdp.PremierLeague;
 
 import java.net.URL;
+import java.time.Month;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.PremierLeague.model.Adiacenza;
 import it.polito.tdp.PremierLeague.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,7 +43,7 @@ public class FXMLController {
     private TextField txtMinuti; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbMese"
-    private ComboBox<?> cmbMese; // Value injected by FXMLLoader
+    private ComboBox<Month> cmbMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM1"
     private ComboBox<?> cmbM1; // Value injected by FXMLLoader
@@ -52,12 +56,44 @@ public class FXMLController {
 
     @FXML
     void doConnessioneMassima(ActionEvent event) {
+    	this.txtResult.clear();
+    	List<Adiacenza> result=this.model.getMigliore();
+    	for(Adiacenza a: result) {
+    		this.txtResult.appendText(a.toString()+"\n");
+    	}
     	
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	this.txtResult.clear();
+    	String minimo=this.txtMinuti.getText().trim();
+    	if(minimo.isEmpty()) {
+    		this.txtResult.setText("minuti non inseriti!");
+    		return;
+    	}
+    	Double min=0.0;
+    	try {
+    		min=Double.parseDouble(minimo);
+    	}catch(NumberFormatException e) {
+    		this.txtResult.setText("Quello inserito non è un numero!");
+    		return;
+    	}
     	
+    	if(min<0.0) {
+    		this.txtResult.setText("Inserito un numero negativo!");
+    		return;
+    	}
+    	
+    	Month m=this.cmbMese.getValue();
+    	if(m==null) {
+    		this.txtResult.appendText("Nessun mese inserito!");
+    		return;
+    	}
+    String result=	this.model.creaGrafo(m, min);
+    this.txtResult.appendText(result);
+    this.btnCollegamento.setDisable(false);
+    this.btnConnessioneMassima.setDisable(false);
     }
 
     @FXML
@@ -79,6 +115,22 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	List<Month> mese=new LinkedList<>();;
+    	mese.add(Month.JANUARY);
+    	mese.add(Month.FEBRUARY);
+    	mese.add(Month.MARCH);
+    	mese.add(Month.APRIL);
+    	mese.add(Month.MAY);
+    	mese.add(Month.JUNE);
+    	mese.add(Month.JULY);
+    	mese.add(Month.AUGUST);
+    	mese.add(Month.SEPTEMBER);
+    	mese.add(Month.OCTOBER);
+    	mese.add(Month.NOVEMBER);
+    	mese.add(Month.DECEMBER);
+    	this.cmbMese.getItems().addAll(mese);
+    	this.btnConnessioneMassima.setDisable(true);
+    	this.btnCollegamento.setDisable(true);
   
     }
     
